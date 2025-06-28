@@ -56,10 +56,10 @@ export default function MarketingPlanBuilder() {
             try {
                 await signInAnonymously(authInstance);
             } catch (error) {
-                console.error("Anonymous sign-in failed:", error);
                 if (error instanceof FirebaseError && error.code === 'auth/api-key-not-valid') {
                     setConfigError("Firebase API Key is not valid. Please check your Firebase project configuration.");
                 } else {
+                    console.error("Anonymous sign-in failed:", error);
                     setConfigError("An unexpected error occurred during sign-in. Please try again later.");
                 }
                 setLoading(false);
@@ -69,13 +69,13 @@ export default function MarketingPlanBuilder() {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
                 setUserId(user.uid);
-            } else {
+            } else if (!configError) { // Prevent sign-in attempts if we already have a config error
                 signInUser(auth);
             }
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [configError]);
     
     useEffect(() => {
         if (userId && db) {
@@ -104,11 +104,15 @@ export default function MarketingPlanBuilder() {
                 setLoading(false);
             }, (error) => {
                 console.error("Firestore onSnapshot error:", error);
+                setConfigError("Could not load your marketing plan from the database.");
                 setLoading(false);
             });
             return () => unsubscribe();
+        } else if (!userId && !loading && !configError) {
+             // If we are not loading, have no user and no config error, there might be another issue.
+             setLoading(false);
         }
-    }, [db, userId, planId]);
+    }, [db, userId, planId, loading, configError]);
 
     const handleUpdate = useCallback(async (data: MarketingPlan) => {
         if (db && userId && planId) {
