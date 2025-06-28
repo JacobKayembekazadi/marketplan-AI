@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'firebase/auth';
-import { getFirestore, doc, onSnapshot, setDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'firebase/auth';
+import { doc, onSnapshot, setDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { BarChart, Users, Target, Compass, Briefcase, Settings } from 'lucide-react';
 import { MarketingPlan } from '@/lib/types';
-import { auth, db, appId, initialAuthToken } from '@/lib/firebase-config';
+import { auth, db, appId, initialAuthToken, isFirebaseConfigured } from '@/lib/firebase-config';
 import SidebarNav from './sidebar-nav';
 import Step1SituationAnalysis from './steps/step1-situation-analysis';
 import Step2MarketsAndCustomers from './steps/step2-markets-and-customers';
@@ -13,7 +13,6 @@ import Step3STP from './steps/step3-stp';
 import Step4DirectionAndObjectives from './steps/step4-direction-and-objectives';
 import Step5StrategiesAndPrograms from './steps/step5-strategies-and-programs';
 import Step6MetricsAndControl from './steps/step6-metrics-and-control';
-import { FirebaseError } from 'firebase/app';
 
 const defaultPlan: Omit<MarketingPlan, 'createdAt'> = {
     title: "My New Marketing Plan",
@@ -44,38 +43,41 @@ export default function MarketingPlanBuilder() {
     const [configError, setConfigError] = useState<string | null>(null);
 
     useEffect(() => {
-        const signInUser = async (authInstance: typeof auth) => {
+        if (!isFirebaseConfigured) {
+            setConfigError("Firebase API Key is not valid. Please check your Firebase project configuration.");
+            setLoading(false);
+            return;
+        }
+
+        const signInUser = async () => {
+            if (!auth) return;
             if (initialAuthToken) {
                 try {
-                    await signInWithCustomToken(authInstance, initialAuthToken);
+                    await signInWithCustomToken(auth, initialAuthToken);
                     return;
                 } catch (error) {
                     console.warn("Custom token sign-in failed, falling back to anonymous.", error);
                 }
             }
             try {
-                await signInAnonymously(authInstance);
+                await signInAnonymously(auth);
             } catch (error) {
-                if (error instanceof FirebaseError && error.code === 'auth/api-key-not-valid') {
-                    setConfigError("Firebase API Key is not valid. Please check your Firebase project configuration.");
-                } else {
-                    console.error("Anonymous sign-in failed:", error);
-                    setConfigError("An unexpected error occurred during sign-in. Please try again later.");
-                }
+                console.error("Anonymous sign-in failed:", error);
+                setConfigError("An unexpected error occurred during sign-in. Please try again later.");
                 setLoading(false);
             }
         };
 
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
+        const unsubscribe = onAuthStateChanged(auth!, (user) => {
             if (user) {
                 setUserId(user.uid);
-            } else if (!configError) { // Prevent sign-in attempts if we already have a config error
-                signInUser(auth);
+            } else {
+                signInUser();
             }
         });
 
         return () => unsubscribe();
-    }, [configError]);
+    }, []);
     
     useEffect(() => {
         if (userId && db) {
@@ -108,8 +110,9 @@ export default function MarketingPlanBuilder() {
                 setLoading(false);
             });
             return () => unsubscribe();
+        } else if (!isFirebaseConfigured && !loading) {
+            // Already handled by the first useEffect, just prevent further state changes.
         } else if (!userId && !loading && !configError) {
-             // If we are not loading, have no user and no config error, there might be another issue.
              setLoading(false);
         }
     }, [db, userId, planId, loading, configError]);
