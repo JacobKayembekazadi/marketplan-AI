@@ -13,6 +13,7 @@ import Step3STP from './steps/step3-stp';
 import Step4DirectionAndObjectives from './steps/step4-direction-and-objectives';
 import Step5StrategiesAndPrograms from './steps/step5-strategies-and-programs';
 import Step6MetricsAndControl from './steps/step6-metrics-and-control';
+import { FirebaseError } from 'firebase/app';
 
 const defaultPlan: Omit<MarketingPlan, 'createdAt'> = {
     title: "My New Marketing Plan",
@@ -40,6 +41,7 @@ export default function MarketingPlanBuilder() {
     const [planId, setPlanId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [configError, setConfigError] = useState<string | null>(null);
 
     useEffect(() => {
         const signInUser = async (authInstance: typeof auth) => {
@@ -55,6 +57,12 @@ export default function MarketingPlanBuilder() {
                 await signInAnonymously(authInstance);
             } catch (error) {
                 console.error("Anonymous sign-in failed:", error);
+                if (error instanceof FirebaseError && error.code === 'auth/api-key-not-valid') {
+                    setConfigError("Firebase API Key is not valid. Please check your Firebase project configuration.");
+                } else {
+                    setConfigError("An unexpected error occurred during sign-in. Please try again later.");
+                }
+                setLoading(false);
             }
         };
 
@@ -129,6 +137,20 @@ export default function MarketingPlanBuilder() {
             default: return false;
         }
     };
+
+    if (configError) {
+        return (
+            <div className="flex items-center justify-center h-screen bg-background text-destructive p-4 text-center">
+                <div>
+                    <h2 className="text-2xl font-headline mb-2">Configuration Error</h2>
+                    <p className="text-lg">{configError}</p>
+                    <p className="mt-4 text-sm text-muted-foreground">
+                        Please ensure your <code>NEXT_PUBLIC_FIREBASE_CONFIG</code> environment variable is set correctly in your project's .env file.
+                    </p>
+                </div>
+            </div>
+        );
+    }
 
     if (loading) {
         return (
