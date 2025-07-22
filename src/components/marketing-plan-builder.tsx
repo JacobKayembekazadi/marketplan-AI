@@ -80,7 +80,7 @@ export default function MarketingPlanBuilder() {
 
     return (
         <SidebarProvider>
-            <div className="min-h-screen bg-muted/40 font-body">
+            <div className="flex h-screen bg-muted/40 font-body">
                 <Sidebar>
                     <SidebarContent className="p-0">
                         <SidebarHeader className="p-4 border-b">
@@ -90,14 +90,14 @@ export default function MarketingPlanBuilder() {
                     </SidebarContent>
                 </Sidebar>
 
-                <SidebarInset>
-                    <header className="flex items-center justify-between p-4 border-b bg-background sticky top-0 z-10">
+                <SidebarInset className="flex-1 flex flex-col">
+                    <header className="flex items-center justify-between p-4 border-b bg-background sticky top-0 z-10 shrink-0">
                          <div className="flex items-center gap-4">
                             <SidebarTrigger className="md:hidden"/>
                             <h1 className="text-xl font-semibold text-primary">{stepTitles[currentStep]}</h1>
                         </div>
                     </header>
-                    <main className="flex-1 p-4 md:p-8 lg:p-10 space-y-8">
+                    <main className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 space-y-8">
                         <Card className="shadow-sm">
                             <CardHeader>
                                 <CardTitle className="text-2xl">Your Business</CardTitle>
@@ -123,7 +123,7 @@ export default function MarketingPlanBuilder() {
                             {renderStep()}
                         </div>
 
-                        <div className="flex justify-between items-center mt-10 pt-6 border-t">
+                        <div className="flex justify-between items-center mt-10 pt-6 border-t sticky bottom-0 bg-background py-4">
                             <Button onClick={handlePrev} disabled={currentStep === 0} variant="outline">
                                 <ArrowLeft className="mr-2" /> Previous
                             </Button>
