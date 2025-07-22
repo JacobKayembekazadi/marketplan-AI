@@ -1,5 +1,5 @@
-import MarketingPlanBuilder from '@/components/marketing-plan-builder';
+import MarketingCopyGenerator from '@/components/marketing-copy-generator';
 
 export default function Home() {
-  return <MarketingPlanBuilder />;
+  return <MarketingCopyGenerator />;
 }
