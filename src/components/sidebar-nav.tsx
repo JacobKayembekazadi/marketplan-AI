@@ -57,9 +57,7 @@ export default function SidebarNav({
       </div>
       <div>
         <SummaryExport plan={plan} />
-        <div className="text-xs text-muted-foreground text-center mt-4 transition-opacity">
-          {saving ? "Saving..." : "All changes saved"}
-        </div>
+        {/* Saving indicator is removed as it is no longer needed without firebase */}
       </div>
     </aside>
   );
