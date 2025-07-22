@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -60,6 +60,11 @@ export default function MarketingCopyGenerator() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [generatedCopy, setGeneratedCopy] = useState<GenerateMarketingCopyOutput | null>(null);
+    const [isClient, setIsClient] = useState(false);
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
 
     const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
         resolver: zodResolver(GenerateMarketingCopyInputSchema),
@@ -84,6 +89,10 @@ export default function MarketingCopyGenerator() {
             setLoading(false);
         }
     };
+
+    if (!isClient) {
+        return null;
+    }
 
     return (
         <div className="min-h-screen bg-muted/20">
