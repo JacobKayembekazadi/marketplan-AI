@@ -53,47 +53,54 @@ export default function Step1SituationAnalysis({ plan, setPlan }: Props) {
     };
 
     const renderList = (field: 'strengths' | 'weaknesses' | 'opportunities' | 'threats', title: string) => (
-        <div>
-            <h3 className="font-semibold mb-2">{title}</h3>
-            <div className="space-y-2">
-                {(swot[field] || []).map((item, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                        <Input value={item} onChange={(e) => handleSwotChange(field, index, e.target.value)} />
-                        <Button variant="ghost" size="icon" onClick={() => removeSwotItem(field, index)}><Trash2 className="w-4 h-4" /></Button>
-                    </div>
-                ))}
-            </div>
-            <Button variant="outline" size="sm" onClick={() => addSwotItem(field)} className="mt-2"><Plus className="w-4 h-4 mr-2" />Add</Button>
-        </div>
+        <Card>
+            <CardHeader>
+                <CardTitle className="text-lg">{title}</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="space-y-2">
+                    {(swot[field] || []).map((item, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                            <Textarea value={item} onChange={(e) => handleSwotChange(field, index, e.target.value)} placeholder={`Enter a ${title.slice(0, -1)}...`} />
+                            <Button variant="ghost" size="icon" onClick={() => removeSwotItem(field, index)}><Trash2 className="w-4 h-4" /></Button>
+                        </div>
+                    ))}
+                </div>
+                <Button variant="outline" size="sm" onClick={() => addSwotItem(field)} className="mt-4"><Plus className="w-4 h-4 mr-2" />Add</Button>
+            </CardContent>
+        </Card>
     );
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Step 1: Situation Analysis</CardTitle>
-                <CardDescription>Analyze your internal strengths & weaknesses and external opportunities & threats (SWOT).</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-8">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-xl">SWOT Analysis</CardTitle>
+                    <CardDescription>Analyze your internal strengths & weaknesses and external opportunities & threats.</CardDescription>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {renderList('strengths', 'Strengths')}
                     {renderList('weaknesses', 'Weaknesses')}
                     {renderList('opportunities', 'Opportunities')}
                     {renderList('threats', 'Threats')}
-                </div>
-                 <div>
-                    <h3 className="font-semibold mb-2 text-lg">Competitor Analysis</h3>
-                    <div className="space-y-4">
-                        {(swot.competitors || []).map((comp, index) => (
-                            <div key={index} className="p-4 border rounded-md space-y-2 relative">
-                                <Input placeholder="Competitor Name" value={comp.name} onChange={(e) => handleCompetitorChange(index, 'name', e.target.value)} />
-                                <Textarea placeholder="Competitor Analysis" value={comp.analysis} onChange={(e) => handleCompetitorChange(index, 'analysis', e.target.value)} />
-                                 <Button variant="ghost" size="icon" onClick={() => removeCompetitor(index)} className="absolute top-2 right-2"><Trash2 className="w-4 h-4" /></Button>
-                            </div>
-                        ))}
-                    </div>
-                    <Button variant="outline" size="sm" onClick={addCompetitor} className="mt-2"><Plus className="w-4 h-4 mr-2" />Add Competitor</Button>
-                </div>
-            </CardContent>
-        </Card>
+                </CardContent>
+            </Card>
+             <Card>
+                <CardHeader>
+                    <CardTitle className="text-xl">Competitor Analysis</CardTitle>
+                     <CardDescription>Identify and analyze your main competitors.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    {(swot.competitors || []).map((comp, index) => (
+                        <div key={index} className="p-4 border rounded-lg space-y-3 relative bg-muted/20">
+                             <Button variant="ghost" size="icon" onClick={() => removeCompetitor(index)} className="absolute top-2 right-2"><Trash2 className="w-4 h-4" /></Button>
+                            <Input placeholder="Competitor Name" className="font-semibold" value={comp.name} onChange={(e) => handleCompetitorChange(index, 'name', e.target.value)} />
+                            <Textarea placeholder="Competitor analysis, strengths, weaknesses..." value={comp.analysis} onChange={(e) => handleCompetitorChange(index, 'analysis', e.target.value)} />
+                        </div>
+                    ))}
+                    <Button variant="outline" onClick={addCompetitor} className="mt-2"><Plus className="w-4 h-4 mr-2" />Add Competitor</Button>
+                </CardContent>
+            </Card>
+        </div>
     );
 }

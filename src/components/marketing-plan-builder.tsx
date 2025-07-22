@@ -69,29 +69,38 @@ export default function MarketingPlanBuilder() {
         }
     };
 
+    const stepTitles = [
+        "Situation Analysis",
+        "Markets & Customers",
+        "Segmentation, Targeting, and Positioning (STP)",
+        "Direction & Objectives",
+        "Strategies & Programs",
+        "Metrics & Control"
+    ];
+
     return (
         <SidebarProvider>
-            <div className="min-h-screen bg-muted/40">
+            <div className="min-h-screen bg-muted/40 font-body">
                 <Sidebar>
                     <SidebarContent className="p-0">
-                        <SidebarHeader className="p-4">
-                            <h2 className="text-xl font-headline font-semibold">MarketPlanAI</h2>
+                        <SidebarHeader className="p-4 border-b">
+                             <h2 className="text-xl font-semibold">MarketPlanAI</h2>
                         </SidebarHeader>
                         <SidebarNav currentStep={currentStep} setCurrentStep={setCurrentStep} />
                     </SidebarContent>
                 </Sidebar>
 
                 <SidebarInset>
-                    <header className="flex items-center justify-between p-4 border-b bg-background">
+                    <header className="flex items-center justify-between p-4 border-b bg-background sticky top-0 z-10">
                          <div className="flex items-center gap-4">
                             <SidebarTrigger className="md:hidden"/>
-                            <h1 className="text-2xl font-bold font-headline text-primary">Marketing Plan Assistant</h1>
+                            <h1 className="text-xl font-semibold text-primary">{stepTitles[currentStep]}</h1>
                         </div>
                     </header>
-                    <main className="flex-1 p-4 md:p-6 space-y-6">
-                        <Card>
+                    <main className="flex-1 p-4 md:p-8 lg:p-10 space-y-8">
+                        <Card className="shadow-sm">
                             <CardHeader>
-                                <CardTitle>Your Business</CardTitle>
+                                <CardTitle className="text-2xl">Your Business</CardTitle>
                                 <CardDescription>
                                     Describe your business, products/services, and target customers. The more detail you provide, the better the AI suggestions will be.
                                 </CardDescription>
@@ -101,24 +110,24 @@ export default function MarketingPlanBuilder() {
                                     placeholder="e.g., We are a small-batch, artisanal coffee roaster based in Brooklyn, NY. We source single-origin, fair-trade beans and sell them online to coffee enthusiasts across the US..."
                                     value={businessDescription}
                                     onChange={(e) => setBusinessDescription(e.target.value)}
-                                    className="min-h-[100px]"
+                                    className="min-h-[120px] text-base"
                                 />
-                                <Button onClick={handleGenerate} disabled={loading} className="w-full md:w-auto">
+                                <Button onClick={handleGenerate} disabled={loading} size="lg">
                                     {loading ? <Loader2 className="animate-spin" /> : <Wand2 />}
                                     {loading ? 'Generating...' : 'Generate AI Suggestions'}
                                 </Button>
                             </CardContent>
                         </Card>
                         
-                        <div className="space-y-4">
+                        <div className="space-y-6">
                             {renderStep()}
                         </div>
 
-                        <div className="flex justify-between items-center mt-8">
-                            <Button onClick={handlePrev} disabled={currentStep === 0}>
+                        <div className="flex justify-between items-center mt-10 pt-6 border-t">
+                            <Button onClick={handlePrev} disabled={currentStep === 0} variant="outline">
                                 <ArrowLeft className="mr-2" /> Previous
                             </Button>
-                            <span className="text-sm text-muted-foreground">Step {currentStep + 1} of {totalSteps}</span>
+                            <span className="text-sm font-medium text-muted-foreground">Step {currentStep + 1} of {totalSteps}</span>
                             <Button onClick={handleNext} disabled={currentStep === totalSteps - 1}>
                                 Next <ArrowRight className="ml-2" />
                             </Button>
